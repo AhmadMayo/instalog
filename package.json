@@ -2,6 +2,9 @@
   "name": "instalog",
   "version": "0.1.0",
   "private": true,
+  "prisma": {
+    "seed": "ts-node --transpile-only prisma/seed.ts"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,9 +12,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@prisma/client": "^4.11.0",
     "@types/node": "18.15.2",
     "@types/react": "18.0.28",
     "@types/react-dom": "18.0.11",
+    "@types/uuid": "^9.0.1",
     "@typescript-eslint/eslint-plugin": "^5.55.0",
     "@typescript-eslint/parser": "^5.55.0",
     "eslint": "8.36.0",
@@ -20,9 +25,11 @@
     "eslint-plugin-prettier": "^4.2.1",
     "next": "13.2.4",
     "prettier": "^2.8.4",
+    "prisma": "^4.11.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "ts-node": "^10.9.1",
-    "typescript": "4.9.5"
+    "typescript": "4.9.5",
+    "uuid": "^9.0.0"
   }
 }
