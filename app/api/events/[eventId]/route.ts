@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { getEventById } from "@/server/controllers/events";
+import getEventById from "./getEventById";
 
 export async function GET(
   request: NextRequest,

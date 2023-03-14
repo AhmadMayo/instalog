@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { getEvents } from "@/server/controllers/events";
+import getEvents from "./getEvents";
 
 export async function GET(request: NextRequest) {
   const authorizationHeader = request.headers.get("Authorization") || "";
