@@ -22,7 +22,7 @@ interface GetEventsResult {
   >;
   count: number;
 }
-export async function getEvents({
+async function getEvents({
   userId,
   userLocation,
   page,
@@ -138,3 +138,27 @@ export async function getEvents({
     count,
   };
 }
+
+type GetEventByIdResult =
+  | null
+  | (Pick<Event, "id" | "occurred_at" | "metadata"> & {
+      action: Action;
+      actor: User;
+      target?: User | null;
+    });
+async function getEventById(eventId: string): Promise<GetEventByIdResult> {
+  return await prisma.event.findUnique({
+    select: {
+      id: true,
+      occurred_at: true,
+      metadata: true,
+      action: true,
+      actor: true,
+    },
+    where: {
+      id: eventId,
+    },
+  });
+}
+
+export { getEvents, getEventById };
