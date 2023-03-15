@@ -2,10 +2,10 @@ import type { Event, Action, User, Prisma } from "@prisma/client";
 import prisma from "@/prisma";
 
 interface GetEventsArgs {
-  userId: string;
-  userLocation: string;
-  page: number;
-  pageSize: number;
+  userId?: string;
+  userLocation?: string;
+  page?: number;
+  pageSize?: number;
   search?: string;
   filters?: {
     action_id?: string;
@@ -15,21 +15,21 @@ interface GetEventsArgs {
 }
 interface GetEventsResult {
   data: Array<
-    Pick<Event, "id" | "occurred_at"> & {
-      action: Pick<Action, "name">;
-      actor: Pick<User, "name">;
+    Event & {
+      action: Action;
+      actor: User;
     }
   >;
   count: number;
 }
 export default async function getEvents({
   userId,
-  userLocation,
-  page,
-  pageSize,
+  userLocation = "",
+  page = 0,
+  pageSize = 5,
   search,
   filters,
-}: GetEventsArgs): Promise<GetEventsResult> {
+}: GetEventsArgs = {}): Promise<GetEventsResult> {
   const where: Prisma.EventAggregateArgs["where"] = {
     OR: [
       {
@@ -78,19 +78,9 @@ export default async function getEvents({
 
   const [data, count] = await prisma.$transaction([
     prisma.event.findMany({
-      select: {
-        id: true,
-        occurred_at: true,
-        action: {
-          select: {
-            name: true,
-          },
-        },
-        actor: {
-          select: {
-            name: true,
-          },
-        },
+      include: {
+        action: true,
+        actor: true,
       },
       take: pageSize,
       skip: page * pageSize,
@@ -104,34 +94,36 @@ export default async function getEvents({
     }),
   ]);
 
-  prisma.action
-    .findFirst({
-      where: {
-        name: "user.searched_activity_log_events",
-      },
-    })
-    .then(async (searchAction) => {
-      if (!searchAction) {
-        throw new Error(
-          "Cannot find `user.searched_activity_log_events` action in DB"
-        );
-      }
-
-      await prisma.event.create({
-        data: {
-          action_id: searchAction.id,
-          location: userLocation,
-          actor_id: userId,
-          metadata: {
-            search,
-            ...filters,
-          },
+  if (userId) {
+    prisma.action
+      .findFirst({
+        where: {
+          name: "user.searched_activity_log_events",
         },
+      })
+      .then(async (searchAction) => {
+        if (!searchAction) {
+          throw new Error(
+            "Cannot find `user.searched_activity_log_events` action in DB"
+          );
+        }
+
+        await prisma.event.create({
+          data: {
+            action_id: searchAction.id,
+            location: userLocation,
+            actor_id: userId,
+            metadata: {
+              search,
+              ...filters,
+            },
+          },
+        });
+      })
+      .catch((error) => {
+        console.error("Get Events:", error);
       });
-    })
-    .catch((error) => {
-      console.error("Get Events:", error);
-    });
+  }
 
   return {
     data,

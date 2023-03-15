@@ -12,8 +12,8 @@ export async function GET(request: NextRequest) {
   const userLocation = request.ip || "";
 
   const { searchParams } = request.nextUrl;
-  const page = Number(searchParams.get("page")) || 0;
-  const pageSize = Number(searchParams.get("pageSize")) || 10;
+  const page = Number(searchParams.get("page")) || undefined;
+  const pageSize = Number(searchParams.get("pageSize")) || undefined;
   const search = searchParams.get("search") || undefined;
   const filters = {
     action_id: searchParams.get("action_id") || undefined,
