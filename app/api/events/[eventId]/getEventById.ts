@@ -3,7 +3,7 @@ import prisma from "@/prisma";
 
 type GetEventByIdResult =
   | null
-  | (Pick<Event, "id" | "occurred_at" | "metadata"> & {
+  | (Event & {
       action: Action;
       actor: User;
       target?: User | null;
@@ -12,12 +12,10 @@ export default async function getEventById(
   eventId: string
 ): Promise<GetEventByIdResult> {
   return await prisma.event.findUnique({
-    select: {
-      id: true,
-      occurred_at: true,
-      metadata: true,
+    include: {
       action: true,
       actor: true,
+      target: true,
     },
     where: {
       id: eventId,
