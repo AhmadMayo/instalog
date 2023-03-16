@@ -2,14 +2,41 @@
 
 import type { ReactNode } from "react";
 import { useMemo, useEffect, useState } from "react";
+import useSWRInfinite from "swr/infinite";
 import { LayoutGroup, motion } from "framer-motion";
 import qs from "qs";
+import type { Action, Event, User } from "@prisma/client";
 import debounce from "@/lib/debounce";
 import EventsPage from "./EventsPage";
 import Toolbar from "./Toolbar";
 import { useSelectedEventId } from "./selectedEventIdContext";
 
 const pageSize = 5;
+function getKey(
+  page: number,
+  previousPageData: EventWithActorAndAction[],
+  search: string
+): string | null {
+  if (previousPageData && !previousPageData.length) {
+    return null;
+  }
+
+  return `/api/events?${qs.stringify({
+    page,
+    pageSize,
+    search,
+  })}`;
+}
+
+type EventWithActorAndAction = Event & {
+  action: Action;
+  actor: User;
+};
+function fetcher(url: string): Promise<EventWithActorAndAction[]> {
+  return fetch(url)
+    .then((r) => r.json())
+    .then(({ data }) => data);
+}
 
 export default function EventsTable() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -17,7 +44,6 @@ export default function EventsTable() {
     () =>
       debounce((term: string) => {
         selectEventId(null);
-        setDidReachLastPage(false);
         setPagesCount(1);
         setSearchTerm(term);
       }, 500),
@@ -26,22 +52,29 @@ export default function EventsTable() {
 
   const [_, selectEventId] = useSelectedEventId();
 
-  const [pagesCount, setPagesCount] = useState(1);
-  const [didReachLastPage, setDidReachLastPage] = useState(false);
+  const {
+    data = [],
+    size: pagesCount,
+    setSize: setPagesCount,
+    isValidating,
+  } = useSWRInfinite(
+    (pageIndex, previousPageData) =>
+      getKey(pageIndex, previousPageData, searchTerm),
+    fetcher,
+    {
+      revalidateFirstPage: false,
+    }
+  );
+  const didReachLastPage = !isValidating && data?.length < pagesCount;
+
   let pages: ReactNode[] = [];
   for (let i = 0; i < pagesCount; i++) {
-    const url = `/api/events?${qs.stringify({
-      page: i,
-      pageSize,
-      search: searchTerm,
-    })}`;
-
     pages.push(
       <EventsPage
-        key={url}
-        url={url}
+        key={`${i}-${searchTerm}`}
+        isLoading={i == pagesCount - 1 && isValidating}
+        events={data?.[i] || []}
         pageSize={pageSize}
-        onNoMoreData={() => setDidReachLastPage(true)}
       />
     );
   }
@@ -76,7 +109,10 @@ export default function EventsTable() {
           </div>
         ) : (
           <button
-            className="grid w-full place-items-center bg-zinc-100 p-4"
+            className={`grid w-full place-items-center p-4 ${
+              isValidating ? "bg-zinc-300 text-zinc-500" : "bg-zinc-100"
+            }`}
+            disabled={isValidating}
             onClick={() => setPagesCount(pagesCount + 1)}
           >
             LOAD MORE

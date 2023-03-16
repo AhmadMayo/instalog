@@ -1,9 +1,7 @@
 "use client";
 
-import type { Action, Event, User } from "@prisma/client";
-import { useLayoutEffect } from "react";
 import { LayoutGroup, motion, AnimatePresence } from "framer-motion";
-import useSWR from "swr";
+import type { Action, Event, User } from "@prisma/client";
 import EventRow from "./EventRow";
 import EventRowSkeleton from "./EventRowSkeleton";
 
@@ -11,30 +9,17 @@ const initial = { opacity: 0, scaleY: 0 };
 const animate = { opacity: 1, scaleY: 1 };
 const exit = { opacity: 0, scaleY: 0 };
 
-type EventWithActorsAndActions = Event & {
-  action: Action;
-  actor: User;
-};
-function eventsFetcher(url: string): Promise<EventWithActorsAndActions[]> {
-  return fetch(url)
-    .then((r) => r.json())
-    .then(({ data }) => data);
-}
-
 interface Props {
-  url: string;
-  pageSize: number;
-  onNoMoreData: () => void;
-}
-export default function EventsPage({ url, pageSize, onNoMoreData }: Props) {
-  const { isLoading, data: events } = useSWR(url, eventsFetcher);
-
-  useLayoutEffect(() => {
-    if (events && events.length < pageSize) {
-      onNoMoreData();
+  isLoading: boolean;
+  events: Array<
+    Event & {
+      action: Action;
+      actor: User;
     }
-  }, [events, pageSize]);
-
+  >;
+  pageSize: number;
+}
+export default function EventsPage({ isLoading, events, pageSize }: Props) {
   return (
     <motion.tbody
       className="text-zinc-900"
