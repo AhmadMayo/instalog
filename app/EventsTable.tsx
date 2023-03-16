@@ -1,17 +1,29 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useMemo, useEffect, useState } from "react";
 import qs from "qs";
+import debounce from "@/lib/debounce";
 import EventsPage from "./EventsPage";
+import Toolbar from "./Toolbar";
 
 const pageSize = 5;
 
 export default function EventsTable() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const search = useMemo(
+    () => debounce((term: string) => setSearchTerm(term), 500),
+    []
+  );
+
   const [pagesCount, setPagesCount] = useState(1);
   let pages: ReactNode[] = [];
   for (let i = 0; i < pagesCount; i++) {
-    const url = `/api/events?${qs.stringify({ page: i, pageSize })}`;
+    const url = `/api/events?${qs.stringify({
+      page: i,
+      pageSize,
+      search: searchTerm,
+    })}`;
 
     pages.push(<EventsPage key={url} url={url} pageSize={pageSize} />);
   }
@@ -22,6 +34,7 @@ export default function EventsTable() {
 
   return (
     <>
+      <Toolbar setSearchTerm={search} />
       <table className="w-full text-zinc-500">
         <thead className="bg-zinc-100 font-semibold">
           <tr>
