@@ -12,11 +12,17 @@ const pageSize = 5;
 export default function EventsTable() {
   const [searchTerm, setSearchTerm] = useState("");
   const search = useMemo(
-    () => debounce((term: string) => setSearchTerm(term), 500),
+    () =>
+      debounce((term: string) => {
+        setDidReachLastPage(false);
+        setPagesCount(1);
+        setSearchTerm(term);
+      }, 500),
     []
   );
 
   const [pagesCount, setPagesCount] = useState(1);
+  const [didReachLastPage, setDidReachLastPage] = useState(false);
   let pages: ReactNode[] = [];
   for (let i = 0; i < pagesCount; i++) {
     const url = `/api/events?${qs.stringify({
@@ -25,7 +31,14 @@ export default function EventsTable() {
       search: searchTerm,
     })}`;
 
-    pages.push(<EventsPage key={url} url={url} pageSize={pageSize} />);
+    pages.push(
+      <EventsPage
+        key={url}
+        url={url}
+        pageSize={pageSize}
+        onNoMoreData={() => setDidReachLastPage(true)}
+      />
+    );
   }
 
   useEffect(() => {
@@ -46,12 +59,18 @@ export default function EventsTable() {
         </thead>
         <tbody className="text-zinc-900">{pages}</tbody>
       </table>
-      <button
-        className="grid w-full place-items-center bg-zinc-100 p-4"
-        onClick={() => setPagesCount(pagesCount + 1)}
-      >
-        LOAD MORE
-      </button>
+      {didReachLastPage ? (
+        <div className="grid w-full place-items-center bg-zinc-300 p-4 text-zinc-600">
+          NO MORE EVENTS
+        </div>
+      ) : (
+        <button
+          className="grid w-full place-items-center bg-zinc-100 p-4"
+          onClick={() => setPagesCount(pagesCount + 1)}
+        >
+          LOAD MORE
+        </button>
+      )}
     </>
   );
 }
