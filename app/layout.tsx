@@ -1,4 +1,7 @@
+import { Inter } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "InstaLog",
@@ -13,7 +16,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="h-full w-full">
-      <body className="flex min-h-full min-w-full flex-col items-center justify-center">
+      <body
+        className={`flex min-h-full min-w-full flex-col items-center justify-center ${inter.className}`}
+      >
         {children}
       </body>
     </html>
