@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useMemo, useEffect, useState } from "react";
+import { LayoutGroup, motion } from "framer-motion";
 import qs from "qs";
 import debounce from "@/lib/debounce";
 import EventsPage from "./EventsPage";
@@ -50,22 +51,25 @@ export default function EventsTable() {
   }, [pagesCount]);
 
   return (
-    <>
-      <div className="overflow-hidden rounded-t-xl">
+    <LayoutGroup>
+      <motion.div layout="position" className="overflow-hidden rounded-t-xl">
         <Toolbar setSearchTerm={search} />
-      </div>
-      <table className="w-full border-[1px] border-zinc-100 text-zinc-500">
-        <thead className="bg-zinc-100 font-semibold">
+      </motion.div>
+      <motion.table
+        layout="size"
+        className="w-full border-[1px] border-zinc-100 text-zinc-500"
+      >
+        <motion.thead layout="position" className="bg-zinc-100 font-semibold">
           <tr>
             <th className="w-[33%] p-4 pt-0 text-left">ACTOR</th>
             <th className="w-[33%] p-4 pt-0 text-left">ACTION</th>
             <th className="w-[33%] p-4 pt-0 text-left">DATE</th>
             <th></th>
           </tr>
-        </thead>
-        <tbody className="text-zinc-900">{pages}</tbody>
-      </table>
-      <div className="overflow-hidden rounded-b-xl">
+        </motion.thead>
+        {pages}
+      </motion.table>
+      <motion.div layout="position" className="overflow-hidden rounded-b-xl">
         {didReachLastPage ? (
           <div className="grid w-full place-items-center bg-zinc-300 p-4 text-zinc-600">
             NO MORE EVENTS
@@ -78,7 +82,7 @@ export default function EventsTable() {
             LOAD MORE
           </button>
         )}
-      </div>
-    </>
+      </motion.div>
+    </LayoutGroup>
   );
 }
