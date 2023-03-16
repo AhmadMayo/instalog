@@ -6,7 +6,7 @@ interface Props {
 
 export default function Toolbar({ setSearchTerm }: Props) {
   return (
-    <div className="bg-zinc-100 px-4 pt-4">
+    <div className="bg-zinc-100 p-4">
       <input
         className="
           w-full rounded-lg

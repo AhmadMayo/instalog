@@ -1,9 +1,21 @@
 "use client";
 
 import dayjs from "dayjs";
+import useSWR from "swr";
 import { FaChevronRight } from "react-icons/fa";
 import type { Action, Event, User } from "@prisma/client";
+import { useSelectedEventId } from "./selectedEventIdContext";
 import classes from "./EventRow.module.css";
+import EventDetails from "./EventDetails";
+
+type EventDetails = Event & {
+  action: Action;
+  actor: User;
+  target: User;
+};
+function fetcher(url: string): Promise<EventDetails> {
+  return fetch(url).then((r) => r.json());
+}
 
 interface Props {
   index: number;
@@ -13,10 +25,31 @@ interface Props {
   };
 }
 export default function EventRow({ index, event }: Props) {
+  const [selectedEventId, selectEventId] = useSelectedEventId();
+  const { isLoading, data: eventDetails } = useSWR<EventDetails>(
+    selectedEventId == event.id ? `/api/events/${event.id}` : null,
+    fetcher
+  );
+
+  if (selectedEventId == event.id) {
+    return (
+      <tr
+        className="origin-center scale-105 bg-white transition-colors hover:cursor-pointer"
+        role="button"
+        onClick={() => selectEventId(null)}
+      >
+        <td colSpan={4}>
+          <EventDetails isLoading={isLoading} event={eventDetails} />
+        </td>
+      </tr>
+    );
+  }
+
   return (
     <tr
-      className="bg-white transition-colors hover:cursor-pointer hover:bg-zinc-100"
+      className="bg-white transition-colors hover:cursor-pointer hover:bg-zinc-50"
       role="button"
+      onClick={() => selectEventId(event.id)}
     >
       <td className="p-4">
         <div className="flex gap-3">

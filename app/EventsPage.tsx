@@ -6,11 +6,11 @@ import useSWR from "swr";
 import EventRow from "./EventRow";
 import EventRowSkeleton from "./EventRowSkeleton";
 
-type EventsWithActorsAndActions = Event & {
+type EventWithActorsAndActions = Event & {
   action: Action;
   actor: User;
 };
-function eventsFetcher(url: string): Promise<EventsWithActorsAndActions[]> {
+function eventsFetcher(url: string): Promise<EventWithActorsAndActions[]> {
   return fetch(url)
     .then((r) => r.json())
     .then(({ data }) => data);
