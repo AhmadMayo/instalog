@@ -4,10 +4,7 @@ import getEvents from "./getEvents";
 
 export async function GET(request: NextRequest) {
   const authorizationHeader = request.headers.get("Authorization") || "";
-  const userId = authorizationHeader.split(" ")[1] || "";
-  if (!userId) {
-    return new NextResponse("Unauthorized access", { status: 401 });
-  }
+  const [_, userId] = authorizationHeader.split(" ");
 
   const userLocation = request.ip || "";
 
