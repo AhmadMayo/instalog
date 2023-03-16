@@ -1,22 +1,34 @@
 "use client";
+import { IoDownload } from "react-icons/io5";
+import type { Action, Event, User } from "@prisma/client";
+import exportCSV from "./exportCSV";
 
 interface Props {
-  setSearchTerm: (term: string) => void;
+  events: Array<
+    Event & {
+      action: Action;
+      actor: User;
+    }
+  >;
+  search: (term: string) => void;
 }
-
-export default function Toolbar({ setSearchTerm }: Props) {
+export default function Toolbar({ events, search }: Props) {
   return (
-    <div className="bg-zinc-100 p-4">
+    <div className="flex bg-zinc-100 p-4">
       <input
-        className="
-          w-full rounded-lg
-          border-[1px]
-          border-zinc-200 bg-transparent p-3
-        placeholder:text-zinc-400
-        "
+        className="grow rounded-l-lg border-[1px] border-r-0 border-zinc-200 bg-transparent p-3 text-zinc-600 placeholder:text-zinc-400 focus-visible:z-10"
         placeholder="Search name, email or action..."
-        onChange={(event) => setSearchTerm(event.target.value)}
+        onChange={(event) => search(event.target.value)}
       />
+      <button
+        className="flex items-center rounded-r-lg border-[1px] border-zinc-200 bg-transparent/0 p-3 text-zinc-600 transition-colors duration-300 hover:bg-transparent/5 focus-visible:z-10"
+        onClick={() => exportCSV(events)}
+      >
+        <div className="flex gap-1">
+          <IoDownload className="text-sm" />
+          <span className="text-xs">EXPORT</span>
+        </div>
+      </button>
     </div>
   );
 }

@@ -86,7 +86,7 @@ export default function EventsTable() {
   return (
     <LayoutGroup>
       <motion.div layout="position" className="overflow-hidden rounded-t-xl">
-        <Toolbar setSearchTerm={search} />
+        <Toolbar search={search} events={data.flat()} />
       </motion.div>
       <motion.table
         layout="size"
