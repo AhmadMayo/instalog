@@ -15,13 +15,13 @@ interface Props {
 export default function EventRow({ index, event }: Props) {
   return (
     <tr
-      className="bg-white hover:bg-zinc-100 hover:cursor-pointer transition-colors"
+      className="bg-white transition-colors hover:cursor-pointer hover:bg-zinc-100"
       role="button"
     >
       <td className="p-4">
         <div className="flex gap-3">
           <span
-            className={`capitalize text-white rounded-full w-6 h-6 text-sm font-bold grid place-items-center ${
+            className={`grid h-6 w-6 place-items-center rounded-full text-sm font-bold capitalize text-white ${
               classes[`gradient-${index % 3}`]
             }`}
           >
