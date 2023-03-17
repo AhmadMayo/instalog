@@ -4,19 +4,19 @@ import type { Action, Event, User } from "@prisma/client";
 import exportCSV from "./exportCSV";
 
 interface Props {
+  isFilterbarVisible: boolean;
   events: Array<
     Event & {
       action: Action;
       actor: User;
     }
   >;
-  isFilterbarVisible: boolean;
   search: (term: string) => void;
   toggleFiltersVisibility: () => void;
 }
 export default function Toolbar({
-  events,
   isFilterbarVisible,
+  events,
   search,
   toggleFiltersVisibility,
 }: Props) {
@@ -29,7 +29,7 @@ export default function Toolbar({
       />
       <button
         className="flex items-center border-[1px] border-r-0 border-zinc-200 bg-transparent/0 p-3 text-zinc-600 transition-colors duration-300 hover:bg-transparent/5 focus-visible:z-10"
-        onClick={() => toggleFiltersVisibility()}
+        onClick={toggleFiltersVisibility}
       >
         <div className="flex gap-1">
           <IoFilter

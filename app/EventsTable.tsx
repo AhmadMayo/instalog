@@ -1,16 +1,15 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { useMemo, useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import useSWRInfinite from "swr/infinite";
-import { LayoutGroup, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import qs from "qs";
 import type { Action, Event, User } from "@prisma/client";
 import debounce from "@/lib/debounce";
-import EventsPage from "./EventsPage";
 import Toolbar from "./Toolbar";
 import Filtersbar from "./Filtersbar";
 import { useSelectedEventId } from "./selectedEventIdContext";
+import EventRow from "./EventRow";
 
 const pageSize = 5;
 function getKey(
@@ -86,39 +85,24 @@ export default function EventsTable({ users, actions }: Props) {
     fetcher,
     {
       revalidateFirstPage: false,
+      keepPreviousData: true,
     }
   );
   const didReachLastPage = !isValidating && data?.length < pagesCount;
 
-  let pages: ReactNode[] = [];
-  for (let i = 0; i < pagesCount; i++) {
-    pages.push(
-      <EventsPage
-        key={`${i}-${searchTerm || ""}`}
-        isLoading={i == pagesCount - 1 && isValidating}
-        events={data?.[i] || []}
-        pageSize={pageSize}
-      />
-    );
-  }
-
-  useEffect(() => {
-    window.scrollTo(0, document.body.scrollHeight);
-  }, [pagesCount]);
-
   return (
-    <LayoutGroup>
-      <motion.div layout="position" className="overflow-hidden rounded-t-xl">
+    <motion.div layout="size" layoutRoot>
+      <div className="overflow-hidden rounded-t-xl">
         <Toolbar
-          events={data.flat()}
           isFilterbarVisible={isFiltersbarVisible}
+          events={data.flat()}
           search={search}
           toggleFiltersVisibility={() =>
             setIsFiltersbarVisible(!isFiltersbarVisible)
           }
         />
-      </motion.div>
-      <motion.div layout="position">
+      </div>
+      <div>
         <Filtersbar
           isVisible={isFiltersbarVisible}
           actorId={actorId}
@@ -126,26 +110,43 @@ export default function EventsTable({ users, actions }: Props) {
           targetId={targetId}
           users={users}
           actions={actions}
-          setActorId={setActorId}
-          setActionId={setActionId}
-          setTargetId={setTargetId}
+          setActorId={(actorId) => {
+            selectEventId(null);
+            setPagesCount(1);
+            setActorId(actorId);
+          }}
+          setActionId={(actionId) => {
+            selectEventId(null);
+            setPagesCount(1);
+            setActionId(actionId);
+          }}
+          setTargetId={(targetId) => {
+            selectEventId(null);
+            setPagesCount(1);
+            setTargetId(targetId);
+          }}
         />
+      </div>
+      <motion.div layout="size" layoutRoot>
+        <table className="w-full border-[1px] border-zinc-100 bg-zinc-100 text-zinc-500">
+          <thead className="bg-zinc-100 font-semibold">
+            <tr>
+              <th className="w-[33%] p-4 pt-0 text-left">ACTOR</th>
+              <th className="w-[33%] p-4 pt-0 text-left">ACTION</th>
+              <th className="w-[33%] p-4 pt-0 text-left">DATE</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {data?.map((events) =>
+              events.map((event, index) => (
+                <EventRow key={event.id} index={index} event={event} />
+              ))
+            )}
+          </tbody>
+        </table>
       </motion.div>
-      <motion.table
-        layout="size"
-        className="w-full border-[1px] border-zinc-100 bg-zinc-100 text-zinc-500"
-      >
-        <motion.thead layout="position" className="bg-zinc-100 font-semibold">
-          <tr>
-            <th className="w-[33%] p-4 pt-0 text-left">ACTOR</th>
-            <th className="w-[33%] p-4 pt-0 text-left">ACTION</th>
-            <th className="w-[33%] p-4 pt-0 text-left">DATE</th>
-            <th></th>
-          </tr>
-        </motion.thead>
-        {pages}
-      </motion.table>
-      <motion.div layout="position" className="overflow-hidden rounded-b-xl">
+      <div className="overflow-hidden rounded-b-xl">
         {didReachLastPage ? (
           <div className="grid w-full place-items-center bg-zinc-300 p-4 text-zinc-600">
             NO MORE EVENTS
@@ -158,10 +159,10 @@ export default function EventsTable({ users, actions }: Props) {
             disabled={isValidating}
             onClick={() => setPagesCount(pagesCount + 1)}
           >
-            LOAD MORE
+            {isValidating ? "LOADING..." : "LOAD MORE"}
           </button>
         )}
-      </motion.div>
-    </LayoutGroup>
+      </div>
+    </motion.div>
   );
 }

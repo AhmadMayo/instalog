@@ -16,7 +16,7 @@ interface Props {
 }
 export default function EventDetails({ isLoading, event }: Props) {
   return (
-    <section className="grid grid-cols-3 gap-9 rounded-xl border-[1px] border-zinc-100 px-10 pt-8 pb-16 shadow">
+    <section className="grid grid-cols-3 gap-9 rounded-xl border-[1px] border-zinc-100 bg-white px-10 pt-8 pb-16 shadow">
       <div className="col-span-1">
         <div className="mb-4 font-medium text-zinc-400">ACTOR</div>
         <dl className="flex flex-col gap-3">

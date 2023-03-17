@@ -9,6 +9,11 @@ import { useSelectedEventId } from "./selectedEventIdContext";
 import classes from "./EventRow.module.css";
 import EventDetails from "./EventDetails";
 
+const transition = { duration: 0.3, ease: "linear" };
+const initial = { height: 0 };
+const animate = { height: "auto" };
+const exit = { height: 0 };
+
 type EventDetails = Event & {
   action: Action;
   actor: User;
@@ -17,10 +22,6 @@ type EventDetails = Event & {
 function fetcher(url: string): Promise<EventDetails> {
   return fetch(url).then((r) => r.json());
 }
-
-const initial = { opacity: 0, scale: 0.9 };
-const animate = { opacity: 1, scale: 1 };
-const exit = { opacity: 0, scale: 0.97 };
 
 interface Props {
   index: number;
@@ -39,9 +40,7 @@ export default function EventRow({ index, event }: Props) {
   );
 
   return (
-    <motion.tr
-      layout
-      style={{ scaleX: isSelected ? "1.02" : "1" }}
+    <tr
       className={`origin-center bg-white transition-colors hover:cursor-pointer ${
         isSelected ? "" : "hover:bg-zinc-50"
       }`}
@@ -50,65 +49,79 @@ export default function EventRow({ index, event }: Props) {
     >
       <AnimatePresence mode="wait">
         {isSelected ? (
-          <motion.td
-            key="details"
-            colSpan={4}
-            initial={initial}
-            animate={animate}
-            exit={exit}
-          >
-            <EventDetails isLoading={isLoading} event={eventDetails} />
-          </motion.td>
+          <td key="event" colSpan={4}>
+            <motion.div
+              className="overflow-hidden rounded-xl border-[1px] border-zinc-100 bg-white shadow"
+              transition={transition}
+              initial={{ height: 0, scale: 1 }}
+              animate={{ height: "auto", scale: 1.05 }}
+              exit={{ height: 0, scale: 1 }}
+            >
+              <EventDetails isLoading={isLoading} event={eventDetails} />
+            </motion.div>
+          </td>
         ) : (
           <>
-            <motion.td
-              key="actor"
-              className="p-4"
-              initial={initial}
-              animate={animate}
-              exit={exit}
-            >
-              <div className="flex gap-3">
-                <span
-                  className={`grid h-6 w-6 place-items-center rounded-full text-sm font-bold capitalize text-white ${
-                    classes[`gradient-${index % 3}`]
-                  }`}
-                >
-                  {event.action.name.charAt(0)}
-                </span>
-                <span>{event.actor.email}</span>
-              </div>
-            </motion.td>
-            <motion.td
-              key="action"
-              className="p-4"
-              initial={initial}
-              animate={animate}
-              exit={exit}
-            >
-              {event.action.name}
-            </motion.td>
-            <motion.td
-              key="date"
-              className="p-4"
-              initial={initial}
-              animate={animate}
-              exit={exit}
-            >
-              {dayjs(event.occurred_at).format("MMM D, h:m A")}
-            </motion.td>
-            <motion.td
-              key="icon"
-              className="p-4"
-              initial={initial}
-              animate={animate}
-              exit={exit}
-            >
-              <FaChevronRight className="text-zinc-200" />
-            </motion.td>
+            <td key="actor">
+              <motion.div
+                className="overflow-hidden"
+                transition={transition}
+                initial={initial}
+                animate={animate}
+                exit={exit}
+              >
+                <div className="flex gap-3 p-4">
+                  <span
+                    className={`grid h-6 w-6 place-items-center rounded-full text-sm font-bold capitalize text-white ${
+                      classes[`gradient-${index % 3}`]
+                    }`}
+                  >
+                    {event.action.name.charAt(0)}
+                  </span>
+                  <span>{event.actor.email}</span>
+                </div>
+              </motion.div>
+            </td>
+            <td key="action">
+              <motion.div
+                className="overflow-hidden"
+                transition={transition}
+                initial={initial}
+                animate={animate}
+                exit={exit}
+              >
+                <div className="p-4">{event.action.name}</div>
+              </motion.div>
+            </td>
+            <td key="date">
+              <motion.div
+                className="overflow-hidden"
+                transition={transition}
+                initial={initial}
+                animate={animate}
+                exit={exit}
+              >
+                <div className="p-4">
+                  {dayjs(event.occurred_at).format("MMM D, h:m A")}
+                </div>
+              </motion.div>
+            </td>
+            <td key="icon">
+              <motion.div
+                className="overflow-hidden"
+                transition={transition}
+                initial={initial}
+                animate={animate}
+                exit={exit}
+              >
+                <div className="p-4">
+                  <FaChevronRight className="text-zinc-200" />
+                </div>
+              </motion.div>
+            </td>
           </>
         )}
       </AnimatePresence>
-    </motion.tr>
+    </tr>
   );
 }
