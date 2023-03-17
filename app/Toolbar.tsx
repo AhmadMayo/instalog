@@ -11,14 +11,18 @@ interface Props {
       actor: User;
     }
   >;
+  isLive: boolean;
   search: (term: string) => void;
   toggleFiltersVisibility: () => void;
+  toggleIsLive: () => void;
 }
 export default function Toolbar({
   isFilterbarVisible,
   events,
+  isLive,
   search,
   toggleFiltersVisibility,
+  toggleIsLive,
 }: Props) {
   return (
     <div className="flex bg-zinc-100 p-4">
@@ -41,12 +45,25 @@ export default function Toolbar({
         </div>
       </button>
       <button
-        className="flex items-center rounded-r-lg border-[1px] border-zinc-200 bg-transparent/0 p-3 text-zinc-600 transition-colors duration-300 hover:bg-transparent/5 focus-visible:z-10"
+        className="flex items-center border-[1px] border-r-0 border-zinc-200 bg-transparent/0 p-3 text-zinc-600 transition-colors duration-300 hover:bg-transparent/5 focus-visible:z-10"
         onClick={() => exportCSV(events)}
       >
         <div className="flex gap-1">
           <IoDownload className="text-sm" />
           <span className="text-xs">EXPORT</span>
+        </div>
+      </button>
+      <button
+        className="flex items-center rounded-r-lg border-[1px] border-zinc-200 bg-transparent/0 p-3 text-zinc-600 transition-colors duration-300 hover:bg-transparent/5 focus-visible:z-10"
+        onClick={toggleIsLive}
+      >
+        <div className="flex gap-1">
+          <span
+            className={`h-4 w-4 rounded-full transition-colors duration-300 ${
+              isLive ? "bg-[rgb(143_72_93/1)]" : "bg-zinc-300"
+            }`}
+          />
+          <span className="text-xs">LIVE</span>
         </div>
       </button>
     </div>

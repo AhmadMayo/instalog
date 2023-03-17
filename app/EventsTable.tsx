@@ -65,6 +65,8 @@ export default function EventsTable({ users, actions }: Props) {
   const [actionId, setActionId] = useState<undefined | string>();
   const [targetId, setTargetId] = useState<undefined | string>();
 
+  const [isLive, setIsLive] = useState(false);
+
   const [_, selectEventId] = useSelectedEventId();
 
   const {
@@ -85,6 +87,8 @@ export default function EventsTable({ users, actions }: Props) {
     fetcher,
     {
       revalidateFirstPage: false,
+      revalidateAll: isLive,
+      refreshInterval: isLive ? 3000 : undefined,
       keepPreviousData: true,
     }
   );
@@ -96,10 +100,12 @@ export default function EventsTable({ users, actions }: Props) {
         <Toolbar
           isFilterbarVisible={isFiltersbarVisible}
           events={data.flat()}
+          isLive={isLive}
           search={search}
           toggleFiltersVisibility={() =>
             setIsFiltersbarVisible(!isFiltersbarVisible)
           }
+          toggleIsLive={() => setIsLive(!isLive)}
         />
       </div>
       <div>
